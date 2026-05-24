@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 N = 30
 N_POPULACAO = 50
@@ -56,11 +57,31 @@ def mutacao_cruzamento_selecao(populacao, fator=0.6, taxa_cross=0.7):
 
     return nova_populacao
 
+# Eixos do gráfico
+fitness_por_geracao = np.zeros(shape=N_GERACOES, dtype=float)
+geracoes = np.linspace(start=1, stop=N_GERACOES, num=N_GERACOES, dtype=int)
+
 populacao = gera_populacao()
+fitness_arr = []
+melhor_idx = 0
 for i in range(N_GERACOES):
     populacao = mutacao_cruzamento_selecao(populacao)
 
-fitness_arr = np.array([fitness(ind) for ind in populacao])
-melhor_fit_idx = np.argmin(fitness_arr)
+    # Necessário para plotar o gráfico posteriormente
+    fitness_arr = np.array([fitness(ind) for ind in populacao])
+    melhor_idx = np.argmin(fitness_arr)
+    fitness_por_geracao[i] = fitness_arr[melhor_idx]
 
-print("Melhor fitness encontrado: ", fitness_arr[melhor_fit_idx])
+print("Melhor fitness encontrado: ", fitness_arr[melhor_idx])
+
+# Plotando o gráfico
+fig, ax = plt.subplots()
+
+ax.plot(geracoes, fitness_por_geracao)
+
+ax.set_xlabel("Geração")
+ax.set_ylabel("Fitness")
+ax.set_title("Algoritmo DE")
+ax.legend(["Fitness"])
+
+plt.show()

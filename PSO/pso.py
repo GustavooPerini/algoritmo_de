@@ -1,11 +1,14 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
-POPULACAO = 100
+POPULACAO = 150
 DIMENSOES = 30
 W = 0.6
 C1 = 2.05
 C2 = 2.05
-N_GERACAO = 1900
+N_GERACAO = 2200
+LOW = -32
+HIGH = 32
 
 
 # Indivíduo == partícula
@@ -18,17 +21,30 @@ N_GERACAO = 1900
 
 
 def gera_populacao():
-    return np.random.uniform(-100, 100, (POPULACAO, DIMENSOES))
+    return np.random.uniform(low=LOW, high=HIGH, size=(POPULACAO, DIMENSOES))
 
 def gera_velocidades():
-    return np.random.uniform(-1, 1, (POPULACAO, DIMENSOES))
-
+    return np.random.uniform(low=-1, high=1, size=(POPULACAO, DIMENSOES))
 
 def fitness(x):
-    penalidade = 1
-    if x[np.argmin(x)] < -100 or x[np.argmax(x)] > 100:
-        penalidade = 100
-    return np.sum(x**2) * penalidade
+
+    punicao = 1
+
+    x = np.asarray(x)
+    n = x.size
+
+    term1 = -20 * np.exp(
+        -0.2 * np.sqrt(np.sum(x**2) / n)
+    )
+
+    term2 = -np.exp(
+        np.sum(np.cos(2 * np.pi * x)) / n
+    )
+
+    if x[np.argmin(x)] < -32 or x[np.argmax(x)] > 32:
+        punicao = 100
+
+    return (term1 + term2 + 20 + np.e) * punicao
 
 def atualiza_velocidade(p_best, g_best, x, v):
     r1 = np.random.random(x.shape)
@@ -52,7 +68,8 @@ g_best_idx = np.argmin(fitness_arr)
 g_best = np.copy(populacao[g_best_idx])
 g_best_fitness = fitness_arr[g_best_idx]
 
-
+fitness_por_geracao = np.zeros(shape=N_GERACAO, dtype=float)
+geracoes = np.linspace(start=1, stop=N_GERACAO, num=N_GERACAO)
 for i in range(N_GERACAO):
     
     velocidade = atualiza_velocidade(p_best, g_best, populacao, velocidade)
@@ -69,6 +86,18 @@ for i in range(N_GERACAO):
             if novo_fitness[j] < g_best_fitness:
                 g_best = np.copy(populacao[j])
                 g_best_fitness = novo_fitness[j]
+    
+    fitness_por_geracao[i] = g_best_fitness
 
 print(f"Melhor fitness: {g_best_fitness}")
-print(f"Melhor posição: {g_best}")
+
+# Plotando o gráfico
+fig, ax = plt.subplots()
+
+ax.plot(geracoes, fitness_por_geracao)
+ax.set_xlabel("Gerações")
+ax.set_ylabel("Fitness")
+ax.set_title("Algoritmo PSO")
+ax.legend(["Fitness"])
+
+plt.show()
