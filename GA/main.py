@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 N = 30
 N_POPULACAO = 30
@@ -71,6 +72,8 @@ def mutacao(populacao, taxa_mutacao=0.1):
             populacao[i] = populacao[i] * alfa
 
     
+melhor_ftiness_por_geracao = np.zeros(shape=N_GERACOES, dtype=float)
+geracoes = np.linspace(start=1, stop=N_GERACOES, num=N_GERACOES, dtype=int)
 
 populacao = gera_populacao()
 for i in range(N_GERACOES):
@@ -81,6 +84,9 @@ for i in range(N_GERACOES):
     # Pegando o indivíduo com o menor fitness dessa população
     melhor_idx = np.argmin(fitness_arr)
     melhor_indv = np.copy(populacao[melhor_idx])
+
+    # Pegando a melhor fitness dessa geração para plotar o gráfico posteriormente
+    melhor_ftiness_por_geracao[i] = fitness_arr[melhor_idx]
 
     populacao = selecao(populacao, fitness_arr)
     populacao = cruzamento(populacao)
@@ -93,3 +99,15 @@ fitness_final = np.array([fitness(ind) for ind in populacao])
 melhor_idx = np.argmin(fitness_final)
 
 print("Melhor fitness encontrado: ", fitness_final[melhor_idx])
+
+# Plotando o gráfico
+fig, ax = plt.subplots()
+
+ax.plot(geracoes, melhor_ftiness_por_geracao)
+
+ax.set_xlabel("Geração")
+ax.set_ylabel("Fitness")
+ax.set_title("Algoritmo GA")
+ax.legend(["Fitness"])
+
+plt.show()
