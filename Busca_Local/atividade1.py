@@ -52,8 +52,40 @@ def gera_vizinho(sol):
         
 def simulated_annealing():
 
-    atual = (0, 0, 0)
+    atual = (0, 0, 0, 0)
     melhor = atual
 
+    T = 100 # Temperatura
+    T_min = 0.01 # Temperatura mínima
+    alpha = 0.95
+
+    while T > T_min:
+        
+        candidato = gera_vizinho(atual)
+
+        delta = funcao_objetivo(candidato) - funcao_objetivo(atual)
+
+        if delta > 0:
+            atual = candidato
+        else:
+            prob = math.exp(delta / T)
+            if random.random() < prob:
+                atual = candidato
+        
+        if funcao_objetivo(atual) > funcao_objetivo(melhor):
+            melhor = atual
+        
+        T *= alpha
 
     return melhor
+
+if __name__ == "__main__":
+
+    solucao = simulated_annealing()
+
+    print("Melhor solucao encontrada:")
+    print(f"x1: {solucao[0]} mil")
+    print(f"x2: {solucao[1]} mil")
+    print(f"x3: {solucao[2]} mil")
+    print(f"x4: {solucao[3]} mil")
+    print(f"Lucro Máximo: R$ {funcao_objetivo(solucao)*1000}")
